@@ -44,8 +44,8 @@ export const useStockScreener = () => {
 
   const getStockCandle = (data: ISymbol) => finnHubService.get(`/stock/candle?symbol=${data.symbol}&resolution=1&from=${(fromDate.getTime() / 1000)}&to=${(toDate.getTime() / 1000)}&token=${FINN_HUB_API_KEY}`);
   const onStockSelectChange = (symbols: ISymbol[]) => {
-    if (symbols.length) {
-      if (currentSymbols.length < symbols.length) {
+    if (symbols && symbols.length) {
+      if (currentSymbols && currentSymbols.length < symbols.length) {
         setLoading(true);
         Promise.all(symbols.map(getStockCandle)).then((responseArr: AxiosResponse[]) => {
           setGraphData(responseArr.map((response, index) => (
@@ -62,6 +62,7 @@ export const useStockScreener = () => {
       setCurrentSymbols(symbols);
     } else {
       setGraphData([]);
+      setCurrentSymbols([]);
     }
   }
   const onNearestX = debounce((value: any, { index }: { index: number }) => {
