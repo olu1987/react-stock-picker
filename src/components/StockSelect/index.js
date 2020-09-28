@@ -53,6 +53,7 @@ const StockSelect = ({
     <Select
       components={{ MenuList }}
       options={data}
+      form
       formatOptionLabel={option => (
         <div>
         {`${option.displaySymbol} | ${option.description}`}
@@ -60,6 +61,12 @@ const StockSelect = ({
       )}
       onChange={onChange}
       isLoading={loading}
+      filterOption={(option, str) => {
+        if (!str || option.data.displaySymbol.toLowerCase().includes(str.toLowerCase())
+        || option.data.description.toLowerCase().includes(str.toLowerCase())) {
+          return option
+        }
+      }}
       styles={{
         control: (styles, select) => ({
           ...styles,
