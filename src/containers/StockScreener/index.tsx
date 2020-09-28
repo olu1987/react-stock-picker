@@ -1,6 +1,6 @@
 import React from 'react';
 import "react-vis/dist/style.css";
-import { XYPlot, XAxis, YAxis, HorizontalGridLines, LineSeries } from 'react-vis';
+import { XYPlot, XAxis, YAxis, HorizontalGridLines, LineSeries, Crosshair } from 'react-vis';
 
 import StockSelect from '../../components/StockSelect';
 import { useStockScreener } from './hooks/use-stock-screener';
@@ -26,7 +26,11 @@ const StockScreener = () => {
     setToDate,
     graphData,
     activePriceType,
-    setActivePriceType
+    setActivePriceType,
+    crosshairValues,
+    setCrosshairValues,
+    onNearestX,
+    formatCrosshairItems
   } = useStockScreener();
   return (
     <WrapperStyled>
@@ -63,16 +67,25 @@ const StockScreener = () => {
       </DatePickerRowStyled>
       <XYPlot
         width={1200}
-        height={700}>
+        height={700}
+        xType={'time'}
+        onMouseLeave={() => setCrosshairValues([])}
+      >
         <HorizontalGridLines />
+        <XAxis />
+        <YAxis />
         {graphData.map((stock) => (
           <LineSeries
             key={stock.id}
-            style={{strokeWidth: 1}}
-            data={stock.data[activePriceType.id]}/>
+            style={{ strokeWidth: 1 }}
+            data={stock.data[activePriceType.id]}
+            onNearestX={onNearestX}
+          />
         ))}
-        <XAxis />
-        <YAxis />
+        <Crosshair
+          values={crosshairValues}
+          itemsFormat={formatCrosshairItems}
+        />
       </XYPlot>
     </WrapperStyled>
 )};

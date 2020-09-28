@@ -1,41 +1,23 @@
 import { useEffect, useState } from 'react';
+import debounce from 'lodash/debounce';
+// import { moment } from 'react';
 import { AxiosResponse } from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
 import { finnHubService } from '../../../services';
 import actionTypes from '../../../constants/action-types';
 import { OHLC } from '../../../constants/stocks';
 import { FINN_HUB_API_KEY } from '../../../config';
-import { RootState, ISymbol } from '../../../types';
+import { RootState, ISymbol, IData, IGraphData, ActivePriceType, PriceDataPoint } from '../../../types';
 import 'react-datepicker/dist/react-datepicker.css';
-
-type PriceDataPoint = {
-  x: number,
-  y: number
-}
-
-interface ActivePriceType {
-  id: string,
-  label:  string
-}
-
-interface IData {
-  [o: string]: number[],
-}
-
-interface IGraphData {
-  id: string,
-  data: {
-    [c: string]: PriceDataPoint[],
-  }
-}
 
 export const useStockScreener = () => {
   const fromDateObj = new Date();
-  fromDateObj.setMonth(fromDateObj.getMonth() - 3)
+  fromDateObj.setMonth(fromDateObj.getMonth() - 1);
   const [fromDate, setFromDate] = useState<Date | any>(fromDateObj);
   const [toDate, setToDate] = useState<Date | any>(new Date());
   const [graphData, setGraphData] = useState<IGraphData[]>([]);
   const [activePriceType, setActivePriceType] = useState<ActivePriceType>(OHLC.OPEN);
+  const [crosshairValues, setCrosshairValues] = useState<any>([]);
   const dispatch = useDispatch();
   const stockSymbols = useSelector((state: RootState) => state.stocksReducer?.symbols?.map(stock => ({ ...stock, value: stock.description })));
   const getStocks = () => {
@@ -51,7 +33,7 @@ export const useStockScreener = () => {
       const timeStamps = data.t;
       formatted[el.id] = [];
       for(let i = 0; i < priceList.length; i++) {
-        formatted[el.id].push({ x: timeStamps[i], y: priceList[i] })
+        formatted[el.id].push({ x: new Date(timeStamps[i]), y: priceList[i], symbol: data.symbol  })
       }
     });
     return formatted;
@@ -65,12 +47,18 @@ export const useStockScreener = () => {
           ...graphData,
           {
             id: selected.symbol,
-            data: getFormattedData(response.data)
+            data: getFormattedData({ ...response.data, symbol: selected.symbol })
           }]);
       })
     }
   }
-  console.log(graphData);
+  const onNearestX = debounce((value: any, { index }: { index: number }) => {
+    console.log(index)
+    setCrosshairValues(graphData.map(entry => entry.data[activePriceType.id][index]));
+  }, 50);
+  const formatCrosshairItems = (data: PriceDataPoint[]) => {
+    return data.map(el => el && ({ title: el.symbol, value: el.y }));
+  }
   useEffect(() => {
     getStocks();
   }, []);
@@ -83,6 +71,10 @@ export const useStockScreener = () => {
     setToDate,
     graphData,
     activePriceType,
-    setActivePriceType
+    setActivePriceType,
+    crosshairValues,
+    setCrosshairValues,
+    onNearestX,
+    formatCrosshairItems
   }
 }

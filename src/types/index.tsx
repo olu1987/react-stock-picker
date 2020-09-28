@@ -15,3 +15,25 @@ export interface RootState {
     symbols?: ISymbol[]
   },
 }
+
+export type PriceDataPoint = {
+  x: number,
+  y: number,
+  symbol: ISymbol
+}
+
+export interface ActivePriceType {
+  id: string,
+  label:  string
+}
+
+export interface IData {
+  [o: string]: number[],
+}
+
+export interface IGraphData {
+  id: string,
+  data: {
+    [c: string]: PriceDataPoint[],
+  }
+}
