@@ -13,6 +13,11 @@ type PriceDataPoint = {
   y: number
 }
 
+interface ActivePriceType {
+  id: string,
+  label:  string
+}
+
 interface IData {
   [o: string]: number[],
 }
@@ -20,10 +25,7 @@ interface IData {
 interface IGraphData {
   id: string,
   data: {
-    c: PriceDataPoint[],
-    h: PriceDataPoint[],
-    l: PriceDataPoint[],
-    o: PriceDataPoint[]
+    [c: string]: PriceDataPoint[],
   }
 }
 
@@ -33,6 +35,7 @@ export const useStockScreener = () => {
   const [fromDate, setFromDate] = useState<Date | any>(fromDateObj);
   const [toDate, setToDate] = useState<Date | any>(new Date());
   const [graphData, setGraphData] = useState<IGraphData[]>([]);
+  const [activePriceType, setActivePriceType] = useState<ActivePriceType>(OHLC.OPEN);
   const dispatch = useDispatch();
   const stockSymbols = useSelector((state: RootState) => state.stocksReducer?.symbols?.map(stock => ({ ...stock, value: stock.description })));
   const getStocks = () => {
@@ -78,6 +81,8 @@ export const useStockScreener = () => {
     setFromDate,
     toDate,
     setToDate,
-    graphData
+    graphData,
+    activePriceType,
+    setActivePriceType
   }
 }

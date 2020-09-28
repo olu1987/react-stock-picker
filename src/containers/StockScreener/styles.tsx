@@ -2,6 +2,8 @@ import styled from 'styled-components';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 
+import { BRAND_COLORS } from '../../constants/colors';
+
 export const WrapperStyled = styled.div`
   display: flex;
   flex-direction: column;
@@ -20,6 +22,25 @@ export const DatePickerWrapperStyled = styled.div`
   .react-datepicker-wrapper {
     width: 100%;
   }
+`;
+
+export const PricesTypesStyled = styled.div`
+  display: flex;
+  padding: 20px 20px 0 0;
+`;
+
+export const PricesTypeButtonStyled = styled.button`
+  padding: 1px 10px;
+  outline: none;
+  border-style: solid;
+  border-color: ${BRAND_COLORS.neutral.grey1};
+  cursor: pointer;
+
+  ${({ active }: { active: boolean }) => active && `
+    border-color: ${BRAND_COLORS.primary};
+    background: ${BRAND_COLORS.primary};
+    color: #fff;
+  `}
 `;
 
 
