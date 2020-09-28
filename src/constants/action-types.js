@@ -1,0 +1,5 @@
+export default {
+  PENDING: '_PENDING',
+  FULFILLED: '_FULFILLED',
+  GET_STOCKS: 'GET_STOCKS'
+}
