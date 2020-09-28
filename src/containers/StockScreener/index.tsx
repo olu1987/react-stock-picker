@@ -3,6 +3,7 @@ import "react-vis/dist/style.css";
 import { XYPlot, XAxis, YAxis, HorizontalGridLines, LineSeries, Crosshair } from 'react-vis';
 
 import StockSelect from '../../components/StockSelect';
+import SmallLoader from '../../components/SmallLoader';
 import { useStockScreener } from './hooks/use-stock-screener';
 
 import { OHLC } from '../../constants/stocks';
@@ -30,10 +31,12 @@ const StockScreener = () => {
     crosshairValues,
     setCrosshairValues,
     onNearestX,
-    formatCrosshairItems
+    formatCrosshairItems,
+    loading
   } = useStockScreener();
   return (
     <WrapperStyled>
+      {loading && <SmallLoader />}
       <StockSelect
         data={stockSymbols}
         onChange={onStockSelectChange}

@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import debounce from 'lodash/debounce';
-// import { moment } from 'react';
 import { AxiosResponse } from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
 import { finnHubService } from '../../../services';
@@ -15,15 +14,17 @@ export const useStockScreener = () => {
   fromDateObj.setMonth(fromDateObj.getMonth() - 1);
   const [fromDate, setFromDate] = useState<Date | any>(fromDateObj);
   const [toDate, setToDate] = useState<Date | any>(new Date());
+  const [currentSymbols, setCurrentSymbols] = useState<ISymbol[]>([]);
   const [graphData, setGraphData] = useState<IGraphData[]>([]);
   const [activePriceType, setActivePriceType] = useState<ActivePriceType>(OHLC.OPEN);
   const [crosshairValues, setCrosshairValues] = useState<any>([]);
+  const [loading, setLoading] = useState<boolean>(false);
   const dispatch = useDispatch();
   const stockSymbols = useSelector((state: RootState) => state.stocksReducer?.symbols?.map(stock => ({ ...stock, value: stock.description })));
   const getStocks = () => {
     dispatch({
       type: actionTypes.GET_STOCKS,
-      payload: finnHubService.get(`stock/symbol?exchange=US&token=${FINN_HUB_API_KEY}`)
+      payload: finnHubService.get(`/stock/symbol?exchange=US&token=${FINN_HUB_API_KEY}`)
     });
   }
   const getFormattedData = (data: IData) => {
@@ -32,28 +33,38 @@ export const useStockScreener = () => {
       const priceList = data[el.id];
       const timeStamps = data.t;
       formatted[el.id] = [];
-      for(let i = 0; i < priceList.length; i++) {
-        formatted[el.id].push({ x: new Date(timeStamps[i]), y: priceList[i], symbol: data.symbol  })
+      if (priceList) {
+        for(let i = 0; i < priceList.length; i++) {
+          formatted[el.id].push({ x: new Date(timeStamps[i]), y: priceList[i], symbol: data.symbol  })
+        }
       }
     });
     return formatted;
   }
+
+  const getStockCandle = (data: ISymbol) => finnHubService.get(`/stock/candle?symbol=${data.symbol}&resolution=1&from=${(fromDate.getTime() / 1000)}&to=${(toDate.getTime() / 1000)}&token=${FINN_HUB_API_KEY}`);
   const onStockSelectChange = (symbols: ISymbol[]) => {
     if (symbols.length) {
-      const selected = symbols[symbols.length - 1];
-      finnHubService.get(`stock/candle?symbol=${selected.symbol}&resolution=1&from=${(fromDate.getTime() / 1000)}&to=${(toDate.getTime() / 1000)}&token=${FINN_HUB_API_KEY}`)
-      .then((response: AxiosResponse) => {
-        setGraphData([
-          ...graphData,
-          {
-            id: selected.symbol,
-            data: getFormattedData({ ...response.data, symbol: selected.symbol })
-          }]);
-      })
+      if (currentSymbols.length < symbols.length) {
+        setLoading(true);
+        Promise.all(symbols.map(getStockCandle)).then((responseArr: AxiosResponse[]) => {
+          setGraphData(responseArr.map((response, index) => (
+            {
+              id: symbols[index].symbol,
+              data: getFormattedData({ ...response.data, symbol: symbols[index].symbol })
+            }
+          )));
+          setLoading(false);
+        })
+      } else {
+        setGraphData(graphData.filter(entry => symbols.find(el => el.symbol === entry.id)));
+      }
+      setCurrentSymbols(symbols);
+    } else {
+      setGraphData([]);
     }
   }
   const onNearestX = debounce((value: any, { index }: { index: number }) => {
-    console.log(index)
     setCrosshairValues(graphData.map(entry => entry.data[activePriceType.id][index]));
   }, 50);
   const formatCrosshairItems = (data: PriceDataPoint[]) => {
@@ -75,6 +86,7 @@ export const useStockScreener = () => {
     crosshairValues,
     setCrosshairValues,
     onNearestX,
-    formatCrosshairItems
+    formatCrosshairItems,
+    loading
   }
 }
