@@ -7,6 +7,7 @@ import SmallLoader from '../../components/SmallLoader';
 import { useStockScreener } from './hooks/use-stock-screener';
 
 import { OHLC } from '../../constants/stocks';
+import { ISymbol } from '../../types';
 
 import {
   WrapperStyled,
@@ -32,14 +33,16 @@ const StockScreener = () => {
     setCrosshairValues,
     onNearestX,
     formatCrosshairItems,
-    loading
+    loading,
+    loadingSymbols
   } = useStockScreener();
   return (
     <WrapperStyled>
       {loading && <SmallLoader />}
       <StockSelect
         data={stockSymbols}
-        onChange={onStockSelectChange}
+        onChange={(val: ISymbol[]) => onStockSelectChange(val)}
+        loading={loading || loadingSymbols}
       />
       <DatePickerRowStyled>
         <DatePickerWrapperStyled>

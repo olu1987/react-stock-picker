@@ -1,5 +1,6 @@
 export default {
   PENDING: '_PENDING',
   FULFILLED: '_FULFILLED',
+  REJECTED: '_REJECTED',
   GET_STOCKS: 'GET_STOCKS'
 }

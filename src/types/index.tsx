@@ -7,12 +7,14 @@ export interface ISymbol {
 };
 
 export interface StocksReducer {
-  symbols?: ISymbol[]
+  symbols?: ISymbol[],
+  loading: boolean
 };
 
 export interface RootState {
   stocksReducer?: {
-    symbols?: ISymbol[]
+    symbols?: ISymbol[],
+    loading: boolean
   },
 }
 

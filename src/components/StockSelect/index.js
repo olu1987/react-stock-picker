@@ -46,6 +46,7 @@ MenuList.defaultProps = {
 const StockSelect = ({
  data,
  onChange,
+ loading,
  ...props
 }) => {
   return (
@@ -58,6 +59,7 @@ const StockSelect = ({
         </div>
       )}
       onChange={onChange}
+      isLoading={loading}
       styles={{
         control: (styles, select) => ({
           ...styles,

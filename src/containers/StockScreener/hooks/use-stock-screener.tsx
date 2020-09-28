@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import moment from 'moment';
 import debounce from 'lodash/debounce';
 import { AxiosResponse } from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
@@ -21,6 +22,7 @@ export const useStockScreener = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const dispatch = useDispatch();
   const stockSymbols = useSelector((state: RootState) => state.stocksReducer?.symbols?.map(stock => ({ ...stock, value: stock.description })));
+  const loadingSymbols = useSelector((state: RootState) => state.stocksReducer?.loading);
   const getStocks = () => {
     dispatch({
       type: actionTypes.GET_STOCKS,
@@ -35,17 +37,19 @@ export const useStockScreener = () => {
       formatted[el.id] = [];
       if (priceList) {
         for(let i = 0; i < priceList.length; i++) {
-          formatted[el.id].push({ x: new Date(timeStamps[i]), y: priceList[i], symbol: data.symbol  })
+          formatted[el.id].push({ x: new Date(moment.unix(timeStamps[i]).toString()), y: priceList[i], symbol: data.symbol  })
         }
       }
     });
     return formatted;
   }
 
-  const getStockCandle = (data: ISymbol) => finnHubService.get(`/stock/candle?symbol=${data.symbol}&resolution=1&from=${(fromDate.getTime() / 1000)}&to=${(toDate.getTime() / 1000)}&token=${FINN_HUB_API_KEY}`);
-  const onStockSelectChange = (symbols: ISymbol[]) => {
+  const getStockCandle = (data: ISymbol) => {
+    return finnHubService.get(`/stock/candle?symbol=${data.symbol}&resolution=1&from=${moment(fromDate).unix()}&to=${moment(toDate).unix()}&token=${FINN_HUB_API_KEY}`);
+  } 
+  const onStockSelectChange = (symbols: ISymbol[], rangeUpdated: boolean = false) => {
     if (symbols && symbols.length) {
-      if (currentSymbols && currentSymbols.length < symbols.length) {
+      if ((currentSymbols && currentSymbols.length < symbols.length) || rangeUpdated) {
         setLoading(true);
         Promise.all(symbols.map(getStockCandle)).then((responseArr: AxiosResponse[]) => {
           setGraphData(responseArr.map((response, index) => (
@@ -74,6 +78,9 @@ export const useStockScreener = () => {
   useEffect(() => {
     getStocks();
   }, []);
+  useEffect(() => {
+    onStockSelectChange(currentSymbols, true);
+  }, [fromDate, toDate]);
   return {
     stockSymbols,
     onStockSelectChange,
@@ -88,6 +95,7 @@ export const useStockScreener = () => {
     setCrosshairValues,
     onNearestX,
     formatCrosshairItems,
-    loading
+    loading,
+    loadingSymbols
   }
 }
