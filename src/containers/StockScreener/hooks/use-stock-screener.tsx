@@ -96,6 +96,7 @@ export const useStockScreener = () => {
     onNearestX,
     formatCrosshairItems,
     loading,
-    loadingSymbols
+    loadingSymbols,
+    currentSymbols
   }
 }

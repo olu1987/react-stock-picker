@@ -6,7 +6,7 @@ import StockSelect from '../../components/StockSelect';
 import SmallLoader from '../../components/SmallLoader';
 import { useStockScreener } from './hooks/use-stock-screener';
 
-import { OHLC } from '../../constants/stocks';
+import { OHLC, stockSelectPlaceholder } from '../../constants/stocks';
 import { ISymbol } from '../../types';
 
 import {
@@ -34,14 +34,24 @@ const StockScreener = () => {
     onNearestX,
     formatCrosshairItems,
     loading,
-    loadingSymbols
+    loadingSymbols,
+    currentSymbols
   } = useStockScreener();
   return (
     <WrapperStyled>
       {loading && <SmallLoader />}
       <StockSelect
         data={stockSymbols}
-        onChange={(val: ISymbol[]) => onStockSelectChange(val)}
+        value={currentSymbols}
+        placeholder={stockSelectPlaceholder}
+        onChange={(symbols: ISymbol[]) => {
+          if (symbols && symbols.length <= 3) {
+            onStockSelectChange(symbols)
+          }
+          if (!symbols) {
+            onStockSelectChange([]);
+          }
+        }}
         loading={loading || loadingSymbols}
       />
       <DatePickerRowStyled>
