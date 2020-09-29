@@ -16,5 +16,3 @@
     label: 'High'
   },
 }
-
-export const stockSelectPlaceholder = 'Please select up to 3 stocks to view price data'

@@ -4,24 +4,57 @@ import 'react-datepicker/dist/react-datepicker.css';
 
 import { BRAND_COLORS } from '../../constants/colors';
 
+export const TitleStyled = styled.h1`
+  color: ${BRAND_COLORS.primary};
+  margin-left: 10px;
+`;
+
 export const WrapperStyled = styled.div`
   display: flex;
   flex-direction: column;
   padding: 20px;
 `;
 
+export const StockSelectWrapper = styled.div`
+  display: flex;
+  width: 800px;
+
+  > div {
+    width: 100%;
+  }
+`;
+
+export const LogoStyled = styled.div`
+   display: flex;
+   justify-content: center;
+   margin-top: 140px;
+
+   svg {
+     fill: ${BRAND_COLORS.primary};
+     width: 600px;
+   }
+`;
+
 export const DatePickerRowStyled = styled.div`
   display: flex;
   width: 100%^;
+  padding-left: 10px;
 `;
 
 export const DatePickerWrapperStyled = styled.div`
-  width: 300px;
+  width: 264px;
   padding: 20px 20px 0 0;
+  display: flex;
+  align-items: center;
 
   .react-datepicker-wrapper {
     width: 100%;
   }
+`;
+
+export const DateLabelStyled = styled.label`
+  color: ${BRAND_COLORS.primary};
+  font-weight: bold;
 `;
 
 export const PricesTypesStyled = styled.div`

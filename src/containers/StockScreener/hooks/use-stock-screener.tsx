@@ -18,7 +18,7 @@ export const useStockScreener = () => {
   const [currentSymbols, setCurrentSymbols] = useState<ISymbol[]>([]);
   const [graphData, setGraphData] = useState<IGraphData[]>([]);
   const [activePriceType, setActivePriceType] = useState<ActivePriceType>(OHLC.OPEN);
-  const [crosshairValues, setCrosshairValues] = useState<any>([]);
+  const [crosshairValues, setCrosshairValues] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const dispatch = useDispatch();
   const stockSymbols = useSelector((state: RootState) => state.stocksReducer?.symbols?.map(stock => ({ ...stock, value: stock.description })));
